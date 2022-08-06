@@ -5,36 +5,40 @@ import "./ui.css";
 declare function require(path: string): any;
 
 function App() {
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    function handleMessage(event) {
+      const { value } = event.data.pluginMessage;
 
-  const onCreate = () => {
-    const count = Number(inputRef.current?.value || 0);
-    parent.postMessage(
-      { pluginMessage: { type: "create-rectangles", count } },
-      "*"
-    );
-  };
+      const dataStr = JSON.stringify(value, null, 2);
+      const dataUri =
+        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
-  const onCancel = () => {
-    parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
-  };
+      const exportFileDefaultName = "palette.json";
+
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("href", dataUri);
+      linkElement.setAttribute("download", exportFileDefaultName);
+      linkElement.click();
+    }
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
     <main>
       <header>
         <img src={require("./logo.svg")} />
-        <h2>Rectangle Creator</h2>
+        <h2>Material UI</h2>
       </header>
-      <section>
-        <input id="input" type="number" min="0" ref={inputRef} />
-        <label htmlFor="input">Rectangle Count</label>
-      </section>
-      <footer>
-        <button className="brand" onClick={onCreate}>
-          Create hey test23444
-        </button>
-        <button onClick={onCancel}>Cancel</button>
-      </footer>
+      <button
+        className="brand"
+        onClick={() => {
+          parent.postMessage({ pluginMessage: { type: "export" } }, "*");
+        }}
+      >
+        Export theme
+      </button>
     </main>
   );
 }

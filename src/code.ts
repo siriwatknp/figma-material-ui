@@ -1,20 +1,18 @@
-figma.showUI(__html__, { themeColors: true, height: 300 });
+import { getPalette } from "./utils";
+
+figma.showUI(__html__, { themeColors: true, height: 200, width: 200 });
 
 figma.ui.onmessage = (msg) => {
-  if (msg.type === "create-rectangles") {
-    const nodes = [];
+  if (msg.type === "export") {
+    const paints = figma.getLocalPaintStyles();
 
-    for (let i = 0; i < msg.count; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [{ type: "SOLID", color: { r: 1, g: 0.5, b: 0 } }];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
-    }
+    const palette = getPalette(paints);
 
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
+    console.log(palette);
+
+    figma.ui.postMessage({ value: { palette } });
   }
 
-  figma.closePlugin();
+  // TODO: wait for file saved
+  // figma.closePlugin();
 };
