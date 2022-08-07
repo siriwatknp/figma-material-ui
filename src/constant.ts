@@ -1,0 +1,1 @@
+export const QUERY_PALETTE = "QUERY_PALETTE";
